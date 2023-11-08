@@ -8,7 +8,7 @@
     <meta charset="utf-8" />
     <title></title>
     <meta name="viewport" content="width=device-width,minimum-scale=1,initial-scale=1"/>
-    <link rel="stylesheet" href="<?=$base;?>/assets/css/style.css" />
+    <link rel="stylesheet" href="<?=$base;?>/assets/css/styles.css" />
 </head>
 <body>
    <header>
@@ -18,17 +18,19 @@
             </div>
             <div class="head-side">
                 <div class="head-side-left">
+
                     <div class="search-area">
                         <form method="GET" action="<?=$base;?>/search.php">
                             <input type="search" placeholder="Pesquisar" name="s" />
                         </form>
                     </div>
+                    
                 </div>
                 <div class="head-side-right">
                     <a href="<?=$base;?>" class="user-area">
                         <div class="user-area-text"><?=$firstName;?></div>
                         <div class="user-area-icon">
-                            <img src="<?=$base;?>/media/avatars/<?=$userInfo->avatar;?>" />
+                            <img src="<?=$base;?>/assets/media/avatars/<?=$userInfo->avatar;?>" />
                         </div>
                     </a>
                     <a href="<?=$base;?>/login.php" class="user-logout">

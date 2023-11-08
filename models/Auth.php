@@ -15,12 +15,10 @@ class Auth {
     public function checkToken() {
        if(!empty($_SESSION['token'])){
            $token = $_SESSION['token']; 
-           $user = $this->dao->finByToken($token);
+           $user = $this->dao->findByToken($token);
            if($user){
             return $user;
            }
-           
-          
        }
 
       header("Location:".$this->base."/login.php");
@@ -29,6 +27,7 @@ class Auth {
 
     public function validateLogin($email, $password){
         $user = $this->dao->findBymail($email);
+       
         if($user){
           if(password_verify($password, $user->password)){
               $token = md5(time().rand(0,9999));
@@ -57,8 +56,6 @@ class Auth {
       $newUser->token = $token;
 
       $this->dao->insert($newUser);
-      
       $_SESSION['token'] = $token;
-
    }
 }
