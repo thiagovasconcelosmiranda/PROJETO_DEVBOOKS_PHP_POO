@@ -3,6 +3,7 @@ require_once 'config.php';
 require_once 'models/Auth.php';
 require_once 'dao/PostDaoMysql.php';
 require_once 'dao/UserRelationDaoMysql.php';
+require 'partials/modal-photo.php';
 
 $auth = new Auth($pdo, $base);
 $userInfo = $auth->checkToken();
@@ -18,6 +19,13 @@ if (!$id) {
 if ($id != $userInfo->id) {
     $activeMenu = '';
 }
+
+//Pegar informações de paginação
+$page = intval(filter_input(INPUT_GET, 'p'));
+if ($page < 1) {
+   $page = 1;
+}
+
 
 $postDao = new PostDaoMysql($pdo);
 $userDao = new UserDaoMysql($pdo);
@@ -37,7 +45,10 @@ $dateTo = new DateTime('today');
 $user->ageYers = $dateFrom->diff($dateTo)->y;
 
 //Pegar o feed do usuário
-$feed = $postDao->getUserfeed($id);
+$info = $postDao->getUserfeed($id, $page);
+$feed = $info['feed'];
+$pages = $info['pages'];
+$currentPage = $info['currentPage'];
 
 require 'partials/header.php';
 require 'partials/menu.php';
@@ -57,17 +68,17 @@ require 'partials/menu.php';
                     <div class="profile-info-name">
                         <div class="profile-info-name-text"><?= $user->name; ?></div>
                         <?php if (!empty($user->city)): ?>
-                            <div class="profile-info-location"><?= $user->city; ?></div>
+                        <div class="profile-info-location"><?= $user->city; ?></div>
                         <?php endif; ?>
                     </div>
                     <div class="profile-info-data row">
                         <?php if ($id != $userInfo->id): ?>
-                            <div class="profile-info-item m-width-20">
-                                <a href="<?= $base; ?>/follow_active.php?id=<?= $id; ?>" class="button">
-                                    <?= $isfollowing ? 'Deixar de seguir ' : 'Seguir' ?>
-                                </a>
+                        <div class="profile-info-item m-width-20">
+                            <a href="<?= $base; ?>/follow_active.php?id=<?= $id; ?>" class="button">
+                                <?= $isfollowing ? 'Deixar de seguir ' : 'Seguir' ?>
+                            </a>
 
-                            </div>
+                        </div>
                         <?php endif; ?>
 
                         <div class="profile-info-item m-width-20">
@@ -99,17 +110,17 @@ require 'partials/menu.php';
                     </div>
 
                     <?php if (!empty($user->city)): ?>
-                        <div class="user-info-mini">
-                            <img src="<?= $base; ?>/assets/images/pin.png" />
-                            <?= $user->city; ?>, Brasil
-                        </div>
+                    <div class="user-info-mini">
+                        <img src="<?= $base; ?>/assets/images/pin.png" />
+                        <?= $user->city; ?>, Brasil
+                    </div>
                     <?php endif; ?>
 
                     <?php if (!empty($user->work)): ?>
-                        <div class="user-info-mini">
-                            <img src="<?= $base; ?>/assets/images/work.png" />
-                            <?= $user->work; ?>
-                        </div>
+                    <div class="user-info-mini">
+                        <img src="<?= $base; ?>/assets/images/work.png" />
+                        <?= $user->work; ?>
+                    </div>
                     <?php endif; ?>
                 </div>
             </div>
@@ -128,18 +139,18 @@ require 'partials/menu.php';
                 <div class="box-body friend-list">
 
                     <?php if (count($user->following) > 0): ?>
-                        <?php foreach ($user->following as $item): ?>
-                            <div class="friend-icon">
-                                <a href="<?= $base; ?>/perfil.php?id=<?= $item->id; ?>">
-                                    <div class="friend-icon-avatar">
-                                        <img src="<?= $base; ?>/assets/media/avatars/<?= $item->avatar ?>" />
-                                    </div>
-                                    <div class="friend-icon-name">
-                                        <?= $item->name; ?>
-                                    </div>
-                                </a>
+                    <?php foreach ($user->following as $item): ?>
+                    <div class="friend-icon">
+                        <a href="<?= $base; ?>/perfil.php?id=<?= $item->id; ?>">
+                            <div class="friend-icon-avatar">
+                                <img src="<?= $base; ?>/assets/media/avatars/<?= $item->avatar ?>" />
                             </div>
-                        <?php endforeach; ?>
+                            <div class="friend-icon-name">
+                                <?= $item->name; ?>
+                            </div>
+                        </a>
+                    </div>
+                    <?php endforeach; ?>
                     <?php endif; ?>
                 </div>
             </div>
@@ -158,38 +169,43 @@ require 'partials/menu.php';
                 </div>
                 <div class="box-body row m-20">
                     <?php if (count($user->photos) > 0): ?>
-                        <?php foreach ($user->photos as $key => $item): ?>
-                            <?php if ($key < 4): ?>
-                                <div class="user-photo-item">
-                                    <a href="#modal-<?= $key; ?>" rel="modal:open">
-                                        <img src="<?= $base; ?>/assets/media/uploads/<?php echo $item->body; ?>">
-                                    </a>
-                                    <div id="modal-<?= $key; ?>" style="display:none">
-                                        <img src="<?= $base; ?>/assets/media/uploads/<?= $item->body; ?>" />
-                                    </div>
-                                </div>
-                            <?php endif; ?>
-                        <?php endforeach; ?>
+                      <?php foreach ($user->photos as $key => $item): ?>
+                        <?php if ($key < 4): ?>
+                          <div class="user-photo-item">
+                             <img src="<?= $base; ?>/assets/media/uploads/<?php echo $item->body; ?>">
+                          </div>
+                        <?php endif; ?>
+                      <?php endforeach; ?>
                     <?php endif; ?>
                 </div>
             </div>
             <?php if ($id == $userInfo->id): ?>
-                <?php require 'partials/feed-editor.php'; ?>
+            <?php require 'partials/feed-editor.php'; ?>
             <?php endif; ?>
             <?php if (count($feed) > 0): ?>
-                <?php foreach ($feed as $item): ?>
-                    <?php require 'partials/feed-item.php'; ?>
-                <?php endforeach; ?>
+            <?php foreach ($feed as $item): ?>
+            <?php require 'partials/feed-item.php'; ?>
+            <?php endforeach; ?>
+
+            <div class="feed-pagination">
+                <?php for($q = 0; $q < $pages; $q++): ?>
+                <a class="<?= ($q+1==$currentPage? 'active':'')?>"
+                    href="<?=$base;?>/perfil.php?id=<?=$id;?>&p=<?=$q+1;?>"><?=$q+1;?></a>
+                <?php endfor; ?>
+
+            </div>
             <?php else: ?>
-                Não há postagens deste usuário.
+            Não há postagens deste usuário.
             <?php endif; ?>
         </div>
 </section>
+<!--
 <script>
    window.onload = function(){
     var modal = new VanillaModal();
    }
 </script>
+-->
 <?php
 require 'partials/footer.php';
 ?>

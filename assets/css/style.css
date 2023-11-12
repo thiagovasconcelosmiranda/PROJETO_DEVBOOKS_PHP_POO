@@ -329,6 +329,23 @@ header .head-side {
     display: none;
 }
 
+.feed-pagination a{
+    display: inline-block;
+    padding:  7px 10px;
+    border: 1px solid #CCC;
+    margin: 5px;
+    text-decoration: none;
+    color: #000;
+    border-radius: 3px;
+}
+
+.feed-pagination a:hover{
+   background-color:#DDD;
+}
+.active{
+    background-color: #fff;
+}
+
 .banners .box-body {
     margin: 0 10px 10px 10px;
 }
@@ -476,6 +493,10 @@ header .head-side {
 }
 
 .user-photo-item img {
+    max-width: 100%;
+    cursor: pointer;
+}
+.full-user-photos .user-photo-item{
     max-width: 100%;
 }
 

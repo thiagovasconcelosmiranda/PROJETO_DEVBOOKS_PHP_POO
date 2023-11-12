@@ -54,7 +54,7 @@
                         </div>
                     </div>
                 </a>
-                <a href="<?=$base;?>/logaut.php">
+                <a href="<?=$base;?>/logout.php">
                     <div class="menu-item">
                         <div class="menu-item-icon">
                             <img src="<?=$base;?>/assets/images/power.png" width="16" height="16" />
